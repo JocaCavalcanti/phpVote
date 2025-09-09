@@ -1,0 +1,16 @@
+{
+    "name": "rodrigo/sistema-votacao",
+    "description": "Sistema de Votação Online para Eleição de Líder de Turma",
+    "type": "project",
+    "require": {
+        "php": ">=8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SistemaVotacao\\": "classes/"
+        }
+    },
+    "scripts": {
+        "start": "php -S localhost:8000 -t ."
+    }
+}
