@@ -1,11 +1,6 @@
--- Script SQL para Sistema de Votação Online - Líder de Turma
--- Banco de dados: MySQL
--- Para usar MySQL ao invés de Supabase, use este arquivo
-
 CREATE DATABASE IF NOT EXISTS sistema_votacao CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sistema_votacao;
 
--- Tabela de chapas
 CREATE TABLE IF NOT EXISTS chapas (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome_chapa VARCHAR(100) NOT NULL,
@@ -18,7 +13,6 @@ CREATE TABLE IF NOT EXISTS chapas (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- Tabela de alunos (para controle de votação)
 CREATE TABLE IF NOT EXISTS alunos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     matricula VARCHAR(20) NOT NULL UNIQUE,
@@ -27,7 +21,6 @@ CREATE TABLE IF NOT EXISTS alunos (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- Tabela de votos
 CREATE TABLE IF NOT EXISTS votos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     matricula_aluno VARCHAR(20) NOT NULL,
@@ -37,13 +30,12 @@ CREATE TABLE IF NOT EXISTS votos (
     UNIQUE KEY unique_vote (matricula_aluno)
 ) ENGINE=InnoDB;
 
--- Índices para melhor performance
+
 CREATE INDEX idx_chapas_codigo ON chapas(codigo_chapa);
 CREATE INDEX idx_alunos_matricula ON alunos(matricula);
 CREATE INDEX idx_votos_matricula ON votos(matricula_aluno);
 CREATE INDEX idx_votos_chapa ON votos(chapa_id);
 
--- View para facilitar consultas de resultados
 CREATE OR REPLACE VIEW resultado_votacao AS
 SELECT 
     c.id,

@@ -33,11 +33,11 @@ class Votacao {
             $this->aluno->cadastrarSeNaoExistir($matricula_aluno);
 
             // Registrar o voto
-            $sql = "INSERT INTO votos (matricula_aluno, chapa_id) VALUES (:matricula_aluno, :chapa_id)";
+            $sql = "INSERT INTO votos (matricula_aluno, chapa_id) VALUES (?, ?)";
             $stmt = $this->db->prepare($sql);
             $result = $stmt->execute([
-                ':matricula_aluno' => $matricula_aluno,
-                ':chapa_id' => $chapa_id
+                $matricula_aluno,
+                $chapa_id
             ]);
 
             if ($result) {
@@ -53,9 +53,9 @@ class Votacao {
 
     public function alunoJaVotou($matricula_aluno) {
         try {
-            $sql = "SELECT COUNT(*) FROM votos WHERE matricula_aluno = :matricula";
+            $sql = "SELECT COUNT(*) FROM votos WHERE matricula_aluno = ?";
             $stmt = $this->db->prepare($sql);
-            $stmt->execute([':matricula' => $matricula_aluno]);
+            $stmt->execute([$matricula_aluno]);
             return $stmt->fetchColumn() > 0;
         } catch (PDOException $e) {
             error_log("Erro ao verificar voto: " . $e->getMessage());
@@ -111,9 +111,9 @@ class Votacao {
 
     public function getVotosPorChapa($chapa_id) {
         try {
-            $sql = "SELECT COUNT(*) FROM votos WHERE chapa_id = :chapa_id";
+            $sql = "SELECT COUNT(*) FROM votos WHERE chapa_id = ?";
             $stmt = $this->db->prepare($sql);
-            $stmt->execute([':chapa_id' => $chapa_id]);
+            $stmt->execute([$chapa_id]);
             return $stmt->fetchColumn();
         } catch (PDOException $e) {
             error_log("Erro ao contar votos da chapa: " . $e->getMessage());
@@ -164,14 +164,35 @@ class Votacao {
             // Calcular média de votos por chapa
             $mediaVotos = $totalChapas > 0 ? round($totalVotos / $totalChapas, 2) : 0;
             
-            // Encontrar chapa vencedora
+            // Encontrar chapa vencedora e detectar empates
             $chapaVencedora = null;
+            $chapasEmpatadas = [];
             $maiorVotacao = 0;
+            
+            // Primeiro, encontrar a maior votação
             foreach ($resultados['resultados'] as $resultado) {
                 if ($resultado['total_votos'] > $maiorVotacao) {
                     $maiorVotacao = $resultado['total_votos'];
-                    $chapaVencedora = $resultado;
                 }
+            }
+            
+            // Depois, encontrar todas as chapas com a maior votação
+            foreach ($resultados['resultados'] as $resultado) {
+                if ($resultado['total_votos'] == $maiorVotacao && $maiorVotacao > 0) {
+                    $chapasEmpatadas[] = $resultado;
+                }
+            }
+            
+            // Definir chapa vencedora ou empate
+            if (count($chapasEmpatadas) == 1) {
+                $chapaVencedora = $chapasEmpatadas[0];
+                $empate = false;
+            } else if (count($chapasEmpatadas) > 1) {
+                $empate = true;
+                $chapaVencedora = null;
+            } else {
+                $empate = false;
+                $chapaVencedora = null;
             }
 
             return [
@@ -179,6 +200,8 @@ class Votacao {
                 'total_chapas' => $totalChapas,
                 'media_votos_por_chapa' => $mediaVotos,
                 'chapa_vencedora' => $chapaVencedora,
+                'empate' => $empate,
+                'chapas_empatadas' => $chapasEmpatadas,
                 'participacao_percentual' => $this->calcularParticipacao()
             ];
         } catch (Exception $e) {

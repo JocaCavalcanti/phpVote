@@ -4,6 +4,17 @@ $base_url = "..";
 require_once __DIR__ . '/../classes/Chapa.php';
 
 $chapa = new Chapa();
+$mensagem = '';
+$tipo_mensagem = '';
+
+// Processar exclusão
+if (isset($_GET['excluir'])) {
+    $id_excluir = (int)$_GET['excluir'];
+    $resultado = $chapa->excluir($id_excluir);
+    $mensagem = $resultado['message'];
+    $tipo_mensagem = $resultado['success'] ? 'success' : 'danger';
+}
+
 $chapas = $chapa->listarTodas();
 $busca = trim($_GET['busca'] ?? '');
 
@@ -19,6 +30,14 @@ if (!empty($busca)) {
 
 include __DIR__ . '/../includes/header.php';
 ?>
+
+<?php if ($mensagem): ?>
+    <div class="alert alert-<?php echo $tipo_mensagem; ?> alert-dismissible fade show" role="alert">
+        <i class="bi bi-<?php echo $tipo_mensagem === 'success' ? 'check-circle' : 'exclamation-triangle'; ?>"></i>
+        <?php echo htmlspecialchars($mensagem); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0">
@@ -131,10 +150,17 @@ include __DIR__ . '/../includes/header.php';
                                 <i class="bi bi-calendar"></i>
                                 <?php echo date('d/m/Y H:i', strtotime($c['created_at'])); ?>
                             </small>
-                            <a href="../pages/votacao.php?chapa=<?php echo $c['id']; ?>" 
-                               class="btn btn-sm btn-success">
-                                <i class="bi bi-hand-thumbs-up"></i> Votar
-                            </a>
+                            <div class="btn-group" role="group">
+                                <a href="../pages/votacao.php?chapa=<?php echo $c['id']; ?>" 
+                                   class="btn btn-sm btn-success">
+                                    <i class="bi bi-hand-thumbs-up"></i> Votar
+                                </a>
+                                <a href="?excluir=<?php echo $c['id']; ?>" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Tem certeza que deseja excluir a chapa \'<?php echo htmlspecialchars($c['nome_chapa']); ?>\'? Esta ação não pode ser desfeita.')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

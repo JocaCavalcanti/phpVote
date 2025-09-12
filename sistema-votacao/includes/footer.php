@@ -28,7 +28,7 @@
                 <div class="col-md-12 text-center">
                     <small class="text-muted">
                         © <?php echo date('Y'); ?> Sistema de Votação Online - 
-                        Análise e Desenvolvimento de Sistemas - 4º Período
+                        Análise e Desenvolvimento de Sistemas - 5º Período
                     </small>
                 </div>
             </div>

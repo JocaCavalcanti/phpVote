@@ -23,16 +23,16 @@ class Chapa {
             }
 
             $sql = "INSERT INTO chapas (nome_chapa, codigo_chapa, matricula_lider, nome_lider, matricula_vice, nome_vice) 
-                    VALUES (:nome_chapa, :codigo_chapa, :matricula_lider, :nome_lider, :matricula_vice, :nome_vice)";
+                    VALUES (?, ?, ?, ?, ?, ?)";
             
             $stmt = $this->db->prepare($sql);
             $result = $stmt->execute([
-                ':nome_chapa' => $nome_chapa,
-                ':codigo_chapa' => $codigo_chapa,
-                ':matricula_lider' => $matricula_lider,
-                ':nome_lider' => $nome_lider,
-                ':matricula_vice' => $matricula_vice,
-                ':nome_vice' => $nome_vice
+                $nome_chapa,
+                $codigo_chapa,
+                $matricula_lider,
+                $nome_lider,
+                $matricula_vice,
+                $nome_vice
             ]);
 
             if ($result) {
@@ -124,9 +124,9 @@ class Chapa {
 
     public function excluir($id) {
         try {
-            $sql = "DELETE FROM chapas WHERE id = :id";
+            $sql = "DELETE FROM chapas WHERE id = ?";
             $stmt = $this->db->prepare($sql);
-            $result = $stmt->execute([':id' => $id]);
+            $result = $stmt->execute([$id]);
 
             if ($result && $stmt->rowCount() > 0) {
                 return ['success' => true, 'message' => 'Chapa excluída com sucesso'];
@@ -140,16 +140,16 @@ class Chapa {
     }
 
     private function chapaExiste($codigo_chapa) {
-        $sql = "SELECT COUNT(*) FROM chapas WHERE codigo_chapa = :codigo";
+        $sql = "SELECT COUNT(*) FROM chapas WHERE codigo_chapa = ?";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':codigo' => $codigo_chapa]);
+        $stmt->execute([$codigo_chapa]);
         return $stmt->fetchColumn() > 0;
     }
 
     private function matriculaJaUsada($matricula) {
-        $sql = "SELECT COUNT(*) FROM chapas WHERE matricula_lider = :matricula OR matricula_vice = :matricula";
+        $sql = "SELECT COUNT(*) FROM chapas WHERE matricula_lider = ? OR matricula_vice = ?";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':matricula' => $matricula]);
+        $stmt->execute([$matricula, $matricula]);
         return $stmt->fetchColumn() > 0;
     }
 

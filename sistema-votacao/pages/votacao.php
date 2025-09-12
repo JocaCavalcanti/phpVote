@@ -19,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $matricula_aluno = trim($_POST['matricula_aluno'] ?? '');
     $chapa_id = $_POST['chapa_id'] ?? '';
     
-    if (empty($matricula_aluno) || empty($chapa_id)) {
-        $mensagem = 'Por favor, informe sua matrícula e selecione uma chapa!';
+    if (empty($matricula_aluno)) {
+        $mensagem = 'Por favor, informe sua matrícula!';
         $tipo_mensagem = 'danger';
     } elseif (!$aluno->validarMatricula($matricula_aluno)) {
         $mensagem = 'Matrícula inválida! Use apenas letras e números (mínimo 6 caracteres).';
@@ -177,9 +177,6 @@ include __DIR__ . '/../includes/header.php';
                             <?php endforeach; ?>
                         </div>
                         
-                        <div class="invalid-feedback d-block" id="chapaError" style="display: none !important;">
-                            Por favor, selecione uma chapa para votar.
-                        </div>
                     </div>
                 </div>
 
@@ -258,10 +255,20 @@ include __DIR__ . '/../includes/header.php';
 // Validação de formulário
 (function() {
     'use strict';
+    var isSubmitting = false;
+    
     window.addEventListener('load', function() {
         var form = document.getElementById('formVotacao');
+        var btnVotar = document.getElementById('btnVotar');
+        
         if (form) {
             form.addEventListener('submit', function(event) {
+                // Prevenir duplo submit
+                if (isSubmitting) {
+                    event.preventDefault();
+                    return;
+                }
+                
                 var matricula = document.getElementById('matricula_aluno').value.trim();
                 var chapaSelected = document.querySelector('input[name="chapa_id"]:checked');
                 
@@ -275,17 +282,15 @@ include __DIR__ . '/../includes/header.php';
                     document.getElementById('matricula_aluno').setCustomValidity('');
                 }
                 
-                // Validar seleção de chapa
-                if (!chapaSelected) {
-                    document.getElementById('chapaError').style.display = 'block';
-                    isValid = false;
-                } else {
-                    document.getElementById('chapaError').style.display = 'none';
-                }
                 
                 if (!isValid || form.checkValidity() === false) {
                     event.preventDefault();
                     event.stopPropagation();
+                } else {
+                    // Desabilitar botão e mostrar loading
+                    isSubmitting = true;
+                    btnVotar.disabled = true;
+                    btnVotar.innerHTML = '<i class="bi bi-hourglass-split"></i> Processando...';
                 }
                 
                 form.classList.add('was-validated');

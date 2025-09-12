@@ -68,19 +68,51 @@ include __DIR__ . '/../includes/header.php';
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body text-center">
-                    <i class="bi bi-calculator display-4 mb-2"></i>
-                    <h3 class="fw-bold"><?php echo $estatisticas ? $estatisticas['media_votos_por_chapa'] : '0'; ?></h3>
-                    <p class="mb-0">Média por Chapa</p>
+    </div>
+
+    <!-- Chapa Vencedora ou Empate -->
+    <?php if ($estatisticas && $estatisticas['empate'] && count($estatisticas['chapas_empatadas']) > 1): ?>
+        <div class="alert alert-warning border-0 shadow-sm mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                    <i class="bi bi-exclamation-triangle-fill display-3 text-warning"></i>
+                </div>
+                <div class="col-md-10">
+                    <h4 class="alert-heading mb-2">
+                        <i class="bi bi-arrow-left-right text-warning"></i> Empate no Primeiro Lugar
+                    </h4>
+                    <p class="mb-3">
+                        <strong>As seguintes chapas estão empatadas com <?php echo $estatisticas['chapas_empatadas'][0]['total_votos']; ?> voto(s) cada:</strong>
+                    </p>
+                    <div class="row">
+                        <?php foreach ($estatisticas['chapas_empatadas'] as $chapa): ?>
+                            <div class="col-md-6 mb-2">
+                                <div class="card border-warning">
+                                    <div class="card-body p-3">
+                                        <h6 class="mb-1">
+                                            <?php echo htmlspecialchars($chapa['nome_chapa']); ?>
+                                            <span class="badge bg-warning text-dark ms-2">
+                                                <?php echo htmlspecialchars($chapa['codigo_chapa']); ?>
+                                            </span>
+                                        </h6>
+                                        <small class="text-muted">
+                                            <strong>Líder:</strong> <?php echo htmlspecialchars($chapa['nome_lider']); ?> | 
+                                            <strong>Vice:</strong> <?php echo htmlspecialchars($chapa['nome_vice']); ?>
+                                        </small>
+                                        <div class="mt-2">
+                                            <span class="badge bg-warning text-dark">
+                                                <?php echo $chapa['total_votos']; ?> voto(s) - <?php echo $chapa['percentual_votos']; ?>%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Chapa Vencedora -->
-    <?php if ($estatisticas && $estatisticas['chapa_vencedora']): ?>
+    <?php elseif ($estatisticas && $estatisticas['chapa_vencedora']): ?>
         <div class="alert alert-success border-0 shadow-sm mb-4">
             <div class="row align-items-center">
                 <div class="col-md-2 text-center">
@@ -229,10 +261,6 @@ include __DIR__ . '/../includes/header.php';
                             <tr>
                                 <td><i class="bi bi-graph-up text-info"></i> Taxa de Participação:</td>
                                 <td><strong><?php echo $estatisticas['participacao_percentual']; ?>%</strong></td>
-                            </tr>
-                            <tr>
-                                <td><i class="bi bi-calculator text-warning"></i> Média por Chapa:</td>
-                                <td><strong><?php echo $estatisticas['media_votos_por_chapa']; ?> votos</strong></td>
                             </tr>
                         <?php endif; ?>
                         <tr>
